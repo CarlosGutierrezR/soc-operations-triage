@@ -1,0 +1,2 @@
+"session_id","triages","mean_triage_seconds","median_triage_seconds","session_elapsed_seconds","effective_work_seconds","confirmed_incidents","deduplicated_alerts"
+"SOC-OPS-004","2","325,32","325,32","1564,76","","",""

@@ -1,53 +1,28 @@
-# SOC-OPS-001 — Initial SOC Monitoring & Triage
+# SOC-OPS-001 | Planteamiento inicial del proyecto
 
-## Problem statement
+**Tipo de documento:** diseño histórico. Describe las metas definidas antes de las sesiones; **no debe leerse como una evaluación del estado actual**.
 
-A SOC analyst starts a monitoring shift with security alerts and findings from heterogeneous telemetry sources.
+## Problema
 
-Not every alert represents a confirmed security incident. The analyst must prioritize, investigate, document and resolve or escalate cases while preserving evidence and operational traceability.
+Al iniciar una sesión de monitorización aparecen alertas heterogéneas. Es necesario distinguir señales, actividades legítimas, problemas operativos e incidentes con fundamento, sin convertir cada coincidencia del SIEM en un incidente.
 
-## Objective
+## Objetivo y alcance previstos
 
-Perform a controlled SOC monitoring shift using the existing shared SOC Lab.
+1. Trabajar en el SOC Lab compartido con telemetría de Wazuh.
+2. Revisar señales disponibles de endpoints e identidad.
+3. Priorizar, investigar, documentar decisiones y realizar transferencias de turno.
+4. Medir únicamente tiempos y cantidades respaldados por registros.
+5. Evaluar detecciones y posibles mejoras sin cambiar reglas sin pruebas.
+6. Incorporar correlación con Security Onion/Zeek/Suricata cuando existan evidencias suficientes.
 
-Demonstrate evidence-based alert prioritization, triage, investigation, incident determination, escalation, closure and shift handover.
+## Límites acordados
 
-## Scope
+No desplegar un SIEM nuevo, no alterar infraestructura global sin autorización, no ejecutar pruebas ofensivas fuera del laboratorio, no automatizar contenciones destructivas ni presentar simulaciones como ataques reales.
 
-- Wazuh endpoint and identity telemetry.
-- Security Onion network telemetry through Zeek and Suricata.
-- Manual alert triage and case documentation.
-- Evidence correlation between available data sources.
-- Incident response decisions when justified.
-- Metrics derived from observed timestamps.
-- Identification of detection improvements and automation opportunities.
+## Criterios de validación
 
-## Out of scope — Initial iteration
+Una investigación conserva identificación de la alerta, fuente, hora observada, hipótesis, evidencia, evaluación, incertidumbre y decisión. Las sesiones se delimitan temporalmente y los casos abiertos se transfieren con acciones concretas.
 
-- Installing a new SIEM or case management platform.
-- Reconfiguring shared SOC infrastructure.
-- Unapproved offensive activity.
-- Automatic containment.
-- Claiming simulated incidents represent production incidents.
+## Evolución posterior
 
-## Operational workflow
-
-Telemetry → Detection → Alert → Monitoring → Triage → Investigation → Determination → Response → Closure → Metrics → Automation opportunities.
-
-## Validation criteria
-
-- Required telemetry sources are audited before the shift.
-- Alert records have traceable source identifiers and timestamps.
-- Each investigated case includes hypothesis, evidence, analysis and determination.
-- Escalation and closure decisions are documented.
-- A shift handover identifies outstanding work.
-- Metrics are calculated from observed data.
-- Limitations and gaps are explicitly recorded.
-
-## Current status
-
-**Planning.** Repository initialized. Telemetry health, shift execution and operational results have not yet been validated.
-
-## Security constraints
-
-All testing remains within the authorized SOC Lab. Shared infrastructure changes require separate approval and validation. Evidence must be sanitized before public publication.
+El resultado de estas metas está descrito en [README](../README.md), [SOC-OPS-004](../shifts/SOC-OPS-004.md) e [IR-001](../cases/IR-001.md). La correlación efectiva de telemetría de red con host no se documentó como logro de este proyecto.

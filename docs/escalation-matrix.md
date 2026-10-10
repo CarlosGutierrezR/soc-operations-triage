@@ -1,13 +1,20 @@
-# Escalation and disposition matrix
+# Matriz de determinación y escalado
 
-| Analyst disposition | Evidence threshold | Action |
+| Determinación | Evidencia necesaria | Acción permitida |
 |---|---|---|
-| Confirmed incident | Corroborated unauthorized activity or controlled scenario with verified ground truth | Escalate and document incident timeline, scope, proposed containment, approval, recovery and lessons learned |
-| Suspicious / unresolved high impact | Plausible harmful behavior with missing decisive evidence | Escalate for additional collection; preserve artifacts and explicit owner |
-| Inconclusive | Insufficient confirmation or rebuttal | Keep investigation open or hand over with a precise missing-evidence checklist |
-| Likely benign, residual uncertainty accepted | Multiple benign contextual indicators, no compromise substantiated, analyst accepts documented limitations | Administrative closure without falsely claiming verified harmlessness or a confirmed false positive |
-| Confirmed benign | Sufficient provenance and corroboration | Close with source-linked rationale |
+| Incidente de seguridad confirmado | Actividad no autorizada corroborada por datos suficientes | Escalado; alcance y timeline; respuesta autorizada con validación |
+| Sospecha relevante | Conducta potencialmente dañina sin prueba decisiva | Recopilación adicional y transferencia documentada |
+| Inconcluso | No se puede confirmar ni descartar con el material disponible | Mantener abierto o transferir con tareas concretas |
+| Probablemente benigno, con incertidumbre aceptada | Contexto compatible con normalidad y límites explicitados | Cierre **administrativo**, sin etiquetar como falso positivo confirmado |
+| Benigno verificado | Procedencia legítima y evidencias suficientes | Cierre fundamentado y trazable |
+| Simulación autorizada | Actividad de prueba conocida, objetivo delimitado y evidencia propia | Recuperar/validar solo el artefacto de ensayo; no presentar como ataque real |
 
-**Response guardrails:** no isolation, service stop, account disablement, firewall changes, deletion or production changes without explicit approval, blast-radius check, backups/rollback and observed validation.
+## Salvaguardas
 
-**CASE-001 decision:** The analyst explicitly authorized administrative closure on 2026-10-10 as *Likely Benign — Closed with Residual Uncertainty*, no containment. This is not proof of the Wazuh SCA parent chain.
+No aislar máquinas, bloquear redes, deshabilitar cuentas, eliminar datos ni reiniciar servicios críticos sin comprobar dependencias, alcance, permisos, respaldo, reversión y autorización. Los cambios en sistemas compartidos se elevan a **SOC CORE**.
+
+## Aplicación real
+
+- [CASE-001](../cases/CASE-001.md): cierre administrativo explícito, sin contención.
+- [SOC-OPS-004, TRIAGE-002](../shifts/SOC-OPS-004.md): fallo de conectividad con AD, transferido a SOC CORE.
+- [IR-001](../cases/IR-001.md): restauración de archivo ficticio, sin contención de adversario.

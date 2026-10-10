@@ -1,18 +1,19 @@
-# Handover 001 — SOC Operations
+# Handover 001 | Transferencia de las primeras revisiones
 
-## Basis
-Consolidation of the existing `SOC-OPS-002` and `SOC-OPS-003` notes; **not** a new staffed shift.
+**Origen:** consolidación de SOC-OPS-002 y SOC-OPS-003. No fue un turno nuevo de monitorización continua.
 
-| Item | Status | Next action |
+| Elemento | Estado documentado | Próxima acción justificada |
 |---|---|---|
-| CASE-001 / rule 92066 | Administratively closed: likely benign, residual uncertainty accepted | Reopen only if new contradicting telemetry or reliable process ancestry emerges |
-| CASE-002 / rule 92058 | Open; likely benign working hypothesis | Check application-compatibility operation provenance and source timestamp order |
-| Rule 92052 / hpatchmonTask.cmd | Preliminary likely maintenance; not formally closed | Verify task definition/provenance if repeated or escalated |
-| Rule 61102 | Windows error signal observed in queue | Investigate if recurrence/context establishes operational impact |
-| Rules 60608 / 61104 | Repeated low-priority families were visible | Quantify duplicates with event-level IDs before tuning; do not suppress blindly |
+| CASE-001 / 92066 | Cerrado administrativamente con incertidumbre residual | Reabrir solo ante nueva evidencia contradictoria |
+| CASE-002 / 92058 | Abierto, hipótesis probablemente benigna | Determinar procedencia de la operación de compatibilidad |
+| 92052 / `hpatchmonTask.cmd` | Posible mantenimiento; pendiente | Verificar definición/origen de la tarea si se repite |
+| 61102 | Error Windows observado | Investigar si afecta políticas de grupo/conectividad |
+| 60608 / 61104 | Familias recurrentes en la cola mostrada | Revisar IDs de eventos antes de agrupar o suprimir |
 
-## Residual risks
-Unverified process ancestry/provenance, incomplete individual case timing, lack of tested queue deduplication and no end-to-end IR response exercise. Source events not yet sanitized for public inclusion.
+## Riesgos residuales
 
-## Suggested next shift
-Use the SOP to perform a bounded UTC session, log individual case timestamps, review at least two distinct alerts, preserve dedup keys, decide/escalate/close with reasons and publish aggregate measurements only after checking source data.
+Árbol de procesos sin confirmar, tiempos individuales históricos ausentes, sin deduplicación de toda la cola y datos originales pendientes de sanitización.
+
+## Continuidad
+
+[SOC-OPS-004](SOC-OPS-004.md) avanzó con dos triages cronometrados y concretó el problema de conectividad de AD, pero no convierte retroactivamente la primera revisión en una sesión medida.

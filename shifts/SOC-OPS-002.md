@@ -1,42 +1,37 @@
-﻿# SOC-OPS-002 — Initial SOC Monitoring and Triage
+# SOC-OPS-002 | Primera revisión retrospectiva de alertas
 
-## Scope
-- Project: SOC Operations, Monitoring, Triage and Incident Response.
-- Platform: Wazuh.
-- Observation: Retrospective alert review.
-- Status: Initial triage documented.
+## Objetivo
 
-## Monitoring baseline
-- Observation window: 2026-10-08 to 2026-10-09.
-- Relative time filter: Last 24 hours.
-- Manager filter: soc-wazuh-01.
-- Observed alert hits: 101.
-- Distinct incidents: Not determined.
-- Alerts fully triaged: Not determined.
+Revisar una muestra de actividad Wazuh y practicar una determinación inicial sin interpretar el recuento de alertas como incidentes.
 
-## Triage — Wazuh rule 92052
-- Endpoint: WIN11-EP-01.
-- Source: Sysmon Event ID 1.
-- Event time (UTC): 2026-10-09 15:45:59.182.
-- Process: C:\Windows\System32\cmd.exe.
-- Parent: svchost.exe (Schedule service).
-- Account: NT AUTHORITY\SYSTEM.
-- Executed script: C:\Windows\System32\hpatchmonTask.cmd.
-- MITRE ATT&CK: T1059.003.
-- Preliminary assessment: Likely maintenance activity.
-- Confidence: Moderate.
-- Limitation: Script provenance and task definition not verified.
-- Response: No containment performed.
-- Final disposition: Pending.
+## Paso 1 — Delimitar la observación
 
-## Measurement integrity
-- Alert hits are not equivalent to distinct incidents.
-- Analyst triage duration was not measured.
-- No response-time or closure-time metrics are claimed.
-- This retrospective review must not be represented as a completed 24-hour staffed SOC shift.
+- Plataforma: Wazuh.
+- Consulta: **últimas 24 horas**, revisión retrospectiva del 8 al 9 de octubre de 2026.
+- Filtro de manager: `soc-wazuh-01`.
+- Resultado mostrado: **101 hits**.
+- Incidentes distintos y alertas completamente investigadas: **no determinados**.
+- No fue un turno atendido durante 24 horas.
 
-## Next operational activity
-- Establish a timestamped monitoring session.
-- Build an alert queue with deduplication.
-- Record prioritization and individual triage decisions.
-- Document escalation, closure and handover where applicable.
+## Paso 2 — Analizar una regla representativa
+
+**Regla Wazuh `92052`**, Sysmon Event ID 1, `WIN11-EP-01`:
+
+| Campo | Observación |
+|---|---|
+| Hora de evento UTC | `2026-10-09 15:45:59.182` |
+| Proceso | `C:\Windows\System32\cmd.exe` |
+| Padre | `svchost.exe`, servicio `Schedule` |
+| Cuenta | `NT AUTHORITY\SYSTEM` |
+| Script | `C:\Windows\System32\hpatchmonTask.cmd` |
+| ATT&CK informado por la regla | `T1059.003` |
+
+## Paso 3 — Determinar y registrar límites
+
+El contexto sugiere actividad de mantenimiento programado, pero **no se verificaron la tarea concreta ni el origen del script**. El dictamen quedó como probablemente mantenimiento, **pendiente de validación**. No se realizó contención.
+
+## Resultado
+
+La sesión dejó una primera hipótesis y mostró la necesidad de registrar identificadores de origen y tiempos individuales. No se calculó duración del triage, falsos positivos, MTTA ni MTTR. La cifra de 101 hits no debe sumarse con los 192 de la sesión siguiente, que utiliza otra ventana móvil.
+
+**Continuación:** [SOC-OPS-003](SOC-OPS-003.md) y [handover inicial](handover-001.md).

@@ -1,41 +1,73 @@
-# SOC Operations — Monitoring, Triage & Incident Response
+# Operaciones SOC | Monitorización, triage y respuesta a incidentes
 
-## Operational problem
-A SOC analyst must prioritize heterogeneous alerts, distinguish observed behavior from confirmed incidents, document decisions, and hand work over without equating SIEM hits with unique incidents.
+> **Proyecto práctico de portfolio.** Trabajo realizado en un laboratorio SOC propio y autorizado. Los casos reflejan observaciones y decisiones documentadas; no representan actividad en un SOC empresarial ni ataques reales confirmados.
 
-## Scope and environment
-This portfolio exercise uses the shared SOC Lab. Documented investigations use Wazuh alerts from `WIN11-EP-01` and Windows Sysmon process-creation telemetry. Network telemetry is in the intended scope, but this repository does not yet demonstrate network-to-host correlation.
+## 1. ¿Qué se quiso resolver?
 
-## Observed outcomes
-- `CASE-001`: Wazuh rule `92066` investigated; authorized closure as **Likely Benign — Closed with Residual Uncertainty**. Wazuh SCA initiation was not conclusively attributed.
-- `SOC-OPS-002`: 101 Wazuh alert hits in a retrospective 24-hour filter; rule `92052` evaluated provisionally as Windows maintenance activity.
-- `SOC-OPS-003`: 192 hits in a separate, moving 24-hour window; rule `92058` prioritized and investigated. Execution context was consistent with Windows application compatibility processing, but operation provenance and a timestamp discrepancy remain unresolved.
-- No incident, false-positive rate, MTTA, MTTD or MTTR is claimed from the available records.
+El objetivo fue recorrer el trabajo cotidiano de un analista SOC: recibir alertas, decidir cuáles requieren atención, investigar procesos y registros, diferenciar un hallazgo técnico de un incidente confirmado, transferir lo que no puede cerrarse y verificar una recuperación.
 
-The 101 and 192 figures describe different observations of moving windows and **must not be added together** or interpreted as unique alerts, cases, or incidents.
+El proyecto reutiliza el **único SOC Lab compartido**. No se desplegó otra infraestructura ni se alteraron reglas compartidas para obtener resultados. La telemetría del endpoint Windows procede de Sysmon y Wazuh; la práctica de recuperación utiliza Wazuh FIM en Linux. **No se presenta correlación Zeek/Suricata–endpoint como resultado demostrado.**
 
-## Operational workflow
-Alert intake → prioritization → evidence review → hypothesis → disposition → escalation/closure → handover → feedback.
+## 2. Recorrido de lectura recomendado
 
-## Repository map
-- `docs/SOC-OPS-001.md`: original scope (historical initial status; not a live status report).
-- `docs/triage-procedure.md`: operational triage SOP.
-- `docs/severity-model.md`: severity/priority decision policy.
-- `docs/escalation-matrix.md`: response and escalation policy.
-- `docs/limitations.md`: known constraints.
-- `cases/CASE-001.md`: investigated and administratively closed case.
-- `cases/CASE-002.md`: initial assessment of `sdbinst.exe` from SOC-OPS-003; remains open/inconclusive.
-- `shifts/SOC-OPS-002.md`, `shifts/SOC-OPS-003.md`: retrospective baseline and interrupted shift.
-- `shifts/handover-001.md`: actionable handover.
-- `metrics/case-register.csv`: traceable case-level records, with missing time fields left empty.
-- `metrics/observations.csv`: aggregate observations kept separate from individual case metrics.
-- `evidence/evidence-manifest.md`: available and missing evidence.
+| Orden | Documento | Qué permite comprobar |
+|---|---|---|
+| 1 | [Procedimiento de triage](docs/triage-procedure.md) | Método, criterios de registro y decisiones |
+| 2 | [Modelo de prioridades](docs/severity-model.md) y [escalado](docs/escalation-matrix.md) | Cómo se decide prioridad y respuesta |
+| 3 | [SOC-OPS-002](shifts/SOC-OPS-002.md) | Primera revisión retrospectiva: 101 hits |
+| 4 | [SOC-OPS-003](shifts/SOC-OPS-003.md) | Cola inicial, 192 hits y análisis de `sdbinst.exe` |
+| 5 | [CASE-001](cases/CASE-001.md) y [CASE-002](cases/CASE-002.md) | Cierre administrativo y caso abierto, respectivamente |
+| 6 | [SOC-OPS-004](shifts/SOC-OPS-004.md) | Dos triages cronometrados y decisión de escalado |
+| 7 | [Comparación de alertas 92058](docs/deduplication-tuning-92058.md) | Recurrencia frente a duplicación; decisión de no suprimir |
+| 8 | [IR-001](cases/IR-001.md) | Preparación, modificación controlada, tres alertas FIM y restauración |
+| 9 | [Lecciones aprendidas](docs/IR-001-lessons-learned.md), [limitaciones](docs/limitations.md) y [evidencias](evidence/evidence-manifest.md) | Qué quedó demostrado y qué no |
 
-## Reproduction
-Use an authorized, isolated SOC Lab. Verify sensor health, timestamps, asset ownership, and the time filter before beginning. Apply `docs/triage-procedure.md` to a new, clearly bounded monitoring session. Record each case's triage-start and decision times independently; do not backfill historical durations.
+El [planteamiento inicial](docs/SOC-OPS-001.md) se conserva como documento histórico: sus referencias a «planificación» **no describen el estado final**.
 
-## Security and publication
-Before publishing, inspect the full Git diff and evidence image for usernames, secrets, unredacted host details and identifiers. Raw alerts may contain sensitive information and are not included as published evidence here.
+## 3. Entorno utilizado y verificado durante el trabajo
 
-## Remaining work for a complete demonstration
-A newly measured session with at least two distinct case-level decisions, defensible queue deduplication, and a controlled end-to-end incident-response scenario (or a clearly documented limitation) remain to be validated. Existing documentation does not establish successful technical containment or recovery.
+| Función | Componente | Evidencia de uso |
+|---|---|---|
+| Estación del analista | `SOC-Analyst-WS` | Acceso y consultas, incluido SSH al endpoint Linux |
+| Endpoint Windows | `WIN11-EP-01`, agente Wazuh `001` | Sysmon Event ID 1 y GroupPolicy Event ID 1129 |
+| Endpoint Linux | `LINUX-EP-01`, agente `002`, Ubuntu 24.04.5 LTS | SSH, Wazuh Agent `4.14.7` y FIM en tiempo real |
+| SIEM/HIDS | Wazuh Manager `soc-wazuh-01` | Alertas reales con ID de origen conservado |
+| Segmento Linux | IP observada `10.50.20.21` | Prueba TCP/22 y sesión SSH desde `10.50.10.100` |
+
+Las direcciones corresponden al laboratorio observado; no son requisitos genéricos de instalación. El inventario puede cambiar, por lo que cada reproducción debe verificar direcciones y alcance.
+
+## 4. Resultados comprobados
+
+| Actividad | Evidencia | Resultado |
+|---|---|---|
+| CASE-001 | Regla `92066`, Sysmon y contexto SCA | Cerrado administrativamente como probablemente benigno, con incertidumbre residual aceptada |
+| CASE-002 | Regla `92058` y firma de `sdbinst.exe` | Permanece abierto; procedencia exacta no comprobada |
+| SOC-OPS-002 | Filtro relativo 24 h | 101 coincidencias, no 101 incidentes |
+| SOC-OPS-003 | Otro filtro relativo 24 h | 192 coincidencias, no acumulables a las anteriores |
+| SOC-OPS-004 | Dos registros con inicio/fin | 124,62 s y 526,03 s transcurridos; media y mediana 325,32 s |
+| Comparación 92058 | Dos alertas distintas y distintos Process GUID | Dos ejecuciones, **cero duplicados entre esos dos eventos**; cola completa sin medir |
+| IR-001 | Reglas `554`, `550`, `550` | Creación, modificación y restauración detectadas; SHA256 original recuperado |
+
+En IR-001 se simuló una modificación autorizada de un **archivo de prueba**, no una intrusión real. No se practicó aislamiento de un adversario ni erradicación de malware. La diferencia entre relojes de endpoint y SIEM impide declarar una latencia de detección o un MTTR fiable.
+
+## 5. Flujo de trabajo aplicado
+
+**Telemetría → alerta → priorización → investigación → determinación → escalado o recuperación → validación → documentación.**
+
+Se conservaron los ID de alertas y las limitaciones. Los datos ausentes se dejaron vacíos; no se asignaron tiempos a posteriori. Los 101 y 192 hits provienen de ventanas móviles diferentes y **no se suman**.
+
+## 6. Reproducción y seguridad
+
+1. Usar únicamente un entorno propio, aislado y autorizado.
+2. Comprobar agente, conectividad, configuración y hora antes de interpretar alertas.
+3. Seguir el [procedimiento de triage](docs/triage-procedure.md) y registrar datos observados, no estimados.
+4. Para una prueba FIM, usar exclusivamente un directorio de ensayo previamente autorizado, con baseline y reversión definidos. [IR-001](cases/IR-001.md) recoge el procedimiento realmente ejecutado, **no una instrucción para modificar archivos de producción**.
+5. Verificar los resultados en endpoint y SIEM antes de cerrar el caso.
+
+Las capturas y los eventos originales pueden contener información sensible. El [manifiesto](evidence/evidence-manifest.md) separa la evidencia publicada de los JSON facilitados durante la investigación que **no se incorporaron al repositorio**. Revisar siempre imágenes, rutas, usuarios, IP, tokens y diffs antes de publicar.
+
+## 7. Estado y trabajo pendiente
+
+**Alcance demostrado:** investigación de alertas, clasificación, handover, tiempos transcurridos de dos triages, comparación limitada de recurrencia y recuperación FIM controlada.
+
+**Abierto o no demostrado:** procedencia del CASE-002 y de TRIAGE-001; causa raíz del fallo de Active Directory de TRIAGE-002 (transferido a SOC CORE); deduplicación de toda la cola; medición de trabajo efectivo, MTTA/MTTD/MTTR y tasa de falsos positivos; correlación directa red–endpoint; contención de una amenaza real. Véase [limitaciones](docs/limitations.md).

@@ -1,66 +1,57 @@
-# CASE-001 — SecEdit execution observed during security assessment
+# CASE-001 | Ejecución de SecEdit durante una evaluación de seguridad
 
-## Status and classification
-- **Status:** Administratively closed on 2026-10-10 by explicit analyst authorization; exact closure clock time not recorded.
-- **Verdict:** Likely Benign — Closed with Residual Uncertainty. This is an administrative determination, not a confirmed false positive.
-- **Confidence:** Moderate (contextual and temporal correlation, no confirmed process ancestry).
-- **SOC priority:** Not formally assigned.
-- **Disposition:** No containment or remediation executed.
+## 1. Estado del caso
 
-## Alert identity
-| Field | Observed value |
-| --- | --- |
-| Source | Wazuh alert from Windows Sysmon process creation (Event ID 1) |
-| Wazuh rule | `92066` (level 4) |
-| Alert ID | `1791560105.194937` |
-| Index document ID | `IHRNIaEBANGddl5nx_JB` |
-| Agent | `WIN11-EP-01` (`001`) |
-| Event timestamp (UTC) | `2026-10-09T15:35:04.166Z` |
-| Wazuh alert timestamp (UTC) | `2026-10-09T15:35:05.309Z` |
-| Security principal | `NT AUTHORITY\SYSTEM` |
-| Process | `C:\Windows\SysWOW64\SecEdit.exe` |
-| Parent | `C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe` |
-| Working directory | `C:\Program Files (x86)\ossec-agent\` |
-| Parent process GUID | `{181cb712-09a7-6ac9-e800-000000001800}` |
-| Child process GUID | `{181cb712-09a8-6ac9-ea00-000000001800}` |
+**Cerrado administrativamente el 10 de octubre de 2026**, por decisión expresa del analista, como **probablemente benigno con incertidumbre residual**. No se confirmó un falso positivo ni un incidente malicioso. No se ejecutaron medidas de contención y **no se registró la hora exacta de cierre**.
 
-## Operational question
-Was this PowerShell-initiated security-policy export a legitimate Wazuh Security Configuration Assessment (SCA) check or activity requiring escalation?
+## 2. Objetivo de la investigación
 
-## Evidence and timeline
-- **15:35:04.166 UTC:** Sysmon Event ID 1 records `SecEdit.exe /export /cfg ...\secpol.cfg`, launched from PowerShell. The parent command exports local policy, searches for `ResetLockoutCount`, and removes the temporary file. Source: user-provided Wazuh JSON.
-- **15:35:05.309 UTC:** Wazuh records rule `92066`, level 4, for that process creation. Source: same alert JSON.
-- **Approximately 15:35:14 (dashboard local time 17:35:14, UTC+02:00):** SCA event shown for the same agent. Additional SCA results appear around 17:35–17:44 local time. Source: `P4-E002` screenshot. Dashboard timezone interpretation is inferred from the workstation's displayed offset and requires confirmation if used for formal time metrics.
+Determinar si una exportación de directivas de seguridad mediante `SecEdit.exe` iniciada desde PowerShell estaba relacionada con una comprobación SCA del agente Wazuh o requería escalado.
 
-## Analyst assessment
-**Observed:** The command is a local security-policy export and inspection. The principal is SYSTEM, and the working directory belongs to the Wazuh agent installation. SCA check records are visible close in time for this endpoint.
+## 3. Alerta y contexto inicial
 
-**Hypothesis:** Wazuh SCA initiated the PowerShell operation as part of a security baseline assessment.
+| Campo | Valor observado |
+|---|---|
+| Agente | `WIN11-EP-01` (`001`) |
+| Fuente | Wazuh / Windows Sysmon Event ID 1 |
+| Regla | `92066`, nivel 4 |
+| Wazuh Alert ID | `1791560105.194937` |
+| `_id` | `IHRNIaEBANGddl5nx_JB` |
+| Evento UTC | `2026-10-09T15:35:04.166Z` |
+| Alerta UTC | `2026-10-09T15:35:05.309Z` |
+| Cuenta | `NT AUTHORITY\SYSTEM` |
+| Proceso | `C:\Windows\SysWOW64\SecEdit.exe` |
+| Padre | `C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe` |
+| Directorio de trabajo | `C:\Program Files (x86)\ossec-agent\` |
+| GUID padre | `{181cb712-09a7-6ac9-e800-000000001800}` |
+| GUID hijo | `{181cb712-09a8-6ac9-ea00-000000001800}` |
 
-**Limitations:** The parent PowerShell process ancestry was not recovered from Wazuh Threat Hunting. A search using the parent GUID returned no results; absence from the queried alert index is not proof that the process event did not occur. The `image` and `commandLine` fields show different Windows filesystem redirection paths (`SysWOW64` vs `system32`); the discrepancy has not been independently resolved. No test of the executable signature or hash was performed.
+## 4. Procedimiento documentado
 
-**MITRE ATT&CK:** The originating Wazuh rule provides `T1059.001` / Execution. This is detection metadata, not evidence of malicious PowerShell use.
+**Paso 1 — Revisar el evento Sysmon.** La alerta de proceso muestra `SecEdit.exe /export /cfg ...\secpol.cfg`. El comando del padre exporta la directiva local, busca el parámetro `ResetLockoutCount` y elimina el archivo temporal. Es una operación compatible con una comprobación de configuración, pero puede necesitar contexto.
 
-**Final administrative conclusion (analyst decision 2026-10-10):** Likely Benign — Closed with Residual Uncertainty. Wazuh SCA initiation is plausible but unproven; no compromise was established by the investigated evidence. Residual uncertainty is expressly accepted for administrative closure. This is not a confirmed false positive.
+**Paso 2 — Revisar la cuenta y el directorio de ejecución.** La cuenta es `SYSTEM` y el directorio de trabajo coincide con la instalación del agente. Es una pista contextual, no identificación concluyente del origen.
 
-## Actions and next steps
-- No containment action taken or recommended on the available evidence.
-- Analyst explicitly authorized closure on 2026-10-10; exact clock time of decision/closure was not captured and must not be invented.
-- Optional detection-tuning candidate: review whether this agent/SCA context creates recurring rule 92066 noise; do not suppress the rule without a representative sample and negative tests.
-- Potential automation: normalize process ancestry, SCA context and evidence references for triage, after manual baseline measurements.
+**Paso 3 — Correlacionar con Wazuh SCA.** Se observó en el dashboard actividad SCA próxima temporalmente para el agente `001`, en torno a las 17:35–17:44 de la hora local mostrada. La imagen sanitizada [P4-E002](../evidence/cases/CASE-001/P4-E002-wazuh-sca-events-sanitized.png) conserva esa observación. La conversión horaria formal de la captura no se validó.
 
-## Evidence references
-- `P4-E002`: sanitized Wazuh SCA events screenshot: `../evidence/cases/CASE-001/P4-E002-wazuh-sca-events-sanitized.png`.
-- `P4-E001` (provisional): original alert JSON supplied during analysis; **not included in the public bundle** because it has not been independently sanitized for publication.
+**Paso 4 — Intentar confirmar el árbol de procesos.** La búsqueda por `parentProcessGuid` no devolvió un proceso padre concluyente en el índice consultado. **Una búsqueda sin resultados no demuestra que el proceso no existiera.**
 
-## Measurement integrity
-Triage start time, determination time, closure time, and measured triage duration were not recorded reliably. They are **not available**; do not infer them from message times or event timestamps.
+**Paso 5 — Evaluar discrepancias.** Los campos de imagen y comando reflejan rutas Windows `SysWOW64` y `system32` no reconciliadas. No se comprobaron independientemente firma ni hash del ejecutable.
 
-## Closure authorization and residual uncertainty
-- **Decision date:** 2026-10-10 (explicit analyst authorization).
-- **Final administrative status:** Closed — Likely Benign with Residual Uncertainty.
-- **Approval basis:** Correlated SCA context and SYSTEM/agent working directory, without definitive ancestry attribution.
-- **Residual gaps:** process ancestry, SysWOW64/system32 mismatch, executable signature/hash and raw-alert publication readiness.
-- **Containment:** None performed.
-- **Timing caveat:** No validated individual triage duration or exact closure UTC timestamp exists.
-- **Reopening criterion:** New contradictory evidence or reliable provenance data.
+## 5. Análisis y decisión
+
+**Observado:** ejecución bajo SYSTEM, exportación de política local, directorio del agente y eventos SCA cercanos.
+
+**Hipótesis:** actividad iniciada por Wazuh SCA. **No confirmada**, porque no se recuperó la línea de ascendencia completa del proceso padre.
+
+La regla etiqueta `T1059.001` (PowerShell), lo que describe la detección; no demuestra uso malicioso. El 10/10/2026 se autorizó el cierre administrativo **con incertidumbre residual explícitamente aceptada**. La razón fue la compatibilidad contextual con una revisión de configuración, no una prueba definitiva de procedencia benigna.
+
+## 6. Estado final y reapertura
+
+- Clasificación: probablemente benigno, no confirmado.
+- Contención/remediación: ninguna.
+- Prioridad histórica: no documentada.
+- Inicio/fin de triage y duración: no disponibles; no reconstruirlos.
+- Reabrir si aparece evidencia contradictoria o ascendencia del proceso fiable.
+
+**Evidencias:** captura [P4-E002](../evidence/cases/CASE-001/P4-E002-wazuh-sca-events-sanitized.png) y JSON original de alerta suministrado en el análisis, **no incluido en Git público**. Véase el [manifiesto](../evidence/evidence-manifest.md).

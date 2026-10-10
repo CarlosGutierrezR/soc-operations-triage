@@ -1,86 +1,50 @@
-﻿# SOC-OPS-003 — SOC Monitoring Session
+# SOC-OPS-003 | Priorización y primer análisis de `sdbinst.exe`
 
-## Session information
+## 1. Sesión registrada
 
-- Date: 2026-10-10
-- Platform: Wazuh Threat Hunting
-- Manager filter: soc-wazuh-01
-- Session type: Interrupted monitoring and triage exercise
-- Status: Initial review completed; handover documented
+| Campo | Valor |
+|---|---|
+| Fecha | 2026-10-10 |
+| Herramienta | Wazuh Threat Hunting |
+| Tipo | Sesión interrumpida de monitorización y triage |
+| Inicio UTC | `2026-10-10T10:50:50.7664302Z` |
+| Fin UTC | `2026-10-10T12:51:11.2721167Z` |
+| Tiempo transcurrido | **120,34 minutos** |
+| Trabajo efectivo | No medido |
 
-## Session timestamps
+La diferencia inicio–fin **no** representa 120,34 minutos de análisis continuo.
 
-- Start UTC: 2026-10-10T10:50:50.7664302Z
-- End UTC: 2026-10-10T12:51:11.2721167Z
-- Elapsed time: 120.34 minutes
-- Effective analyst working time: Not measured
-- Individual alert triage time: Not measured
+## 2. Paso 1 — Revisar la cola
 
-The elapsed time must not be interpreted as continuous analyst activity.
+Filtro: manager `soc-wazuh-01`, últimas 24 horas; la ventana visible abarcaba aproximadamente 2026-10-09 14:44 a 2026-10-10 14:44. Se observaron **192 hits**. No se calculó el número de incidentes distintos.
 
-## Monitoring baseline
+| Regla | Nivel | Señal visible | Prioridad inicial |
+|---|---:|---|---|
+| `92058` | 12 | Base de compatibilidad iniciada | Alta |
+| `61102` | 5 | Error del sistema Windows | Media |
+| `92052` | 4 | Consola de comandos iniciada por proceso inusual | Media |
+| `61104` | 3 | Cambio de tipo de inicio de servicio | Media-baja |
+| `60608` | 4 | Evento resumido de firmas | Baja |
 
-- Query: Last 24 hours
-- Displayed window: 2026-10-09 14:44 to 2026-10-10 14:44
-- Observed alert hits: 192
-- Distinct incidents: Not determined
-- Scope: Alerts matching the Wazuh manager filter
+Son **familias presentes en la captura revisada**, no un desglose exhaustivo de los 192 hits.
 
-## Initial alert queue
+## 3. Paso 2 — Investigar la regla 92058
 
-| Rule ID | Level | Description | Initial priority |
-| --- | --- | --- | --- |
-| 92058 | 12 | Application Compatibility Database launched | High |
-| 61102 | 5 | Windows System error event | Medium |
-| 92052 | 4 | Windows command prompt started by an abnormal process | Medium |
-| 61104 | 3 | Service startup type was changed | Medium-Low |
-| 60608 | 4 | Summary event of the report's signatures | Low |
+En `WIN11-EP-01`, Sysmon Event ID 1 registró a las `2026-10-10 11:46:53.224 UTC` el proceso `sdbinst.exe -m -bg`, padre `svchost.exe` (`PcaSvc`) bajo `SYSTEM`. La comprobación Authenticode devolvió `Valid`; el sujeto del certificado no quedó registrado.
 
-The table represents rule families visible in the screenshot,
-not an exhaustive distribution of all 192 alert hits.
+**Interpretación:** el contexto se asemeja a una operación de compatibilidad de Windows; no demuestra su procedencia legítima. La secuencia de marcas horarias entre alerta y evento resultó inconsistente. El mapeo `T1546.011` es metadato de detección, no indicio concluyente de persistencia.
 
-## Triage — Wazuh rule 92058
+## 4. Paso 3 — Determinar y transferir
 
-- Agent: WIN11-EP-01
-- Source: Sysmon Event ID 1
-- Event UTC: 2026-10-10 11:46:53.224
-- Process: C:\Windows\System32\sdbinst.exe
-- Command: sdbinst.exe -m -bg
-- Parent: svchost.exe
-- Parent service: PcaSvc
-- Account: NT AUTHORITY\SYSTEM
-- Signature status: Valid
-- Exact certificate subject: Not captured
-- MITRE ATT&CK: T1546.011
-- Priority: High at initial triage
-- Assessment: Likely legitimate Windows compatibility activity
-- Confidence: Moderate-High
-- Confirmed compromise: Not established
-- Containment: Not performed
-- Final disposition: Pending verification of operation provenance
+- Investigación detallada documentada: **1**.
+- Clasificación: probablemente legítimo, **sin confirmar**.
+- Estado: abierto en [CASE-002](../cases/CASE-002.md).
+- Contención: ninguna.
+- Tiempo individual de triage: no registrado.
+- Confirmación de incidentes maliciosos: no establecida.
 
-## Investigation limitations
+## 5. Cierre de la sesión
 
-- The exact compatibility operation was not identified.
-- A valid executable signature does not prove benign execution.
-- Alert timestamp precedes the Sysmon event UTC timestamp;
-  clock synchronization and processing timing were not validated.
-- The original alert JSON has not been sanitized for publication.
+Se transfirió la comprobación de procedencia de `sdbinst.exe` y la revisión de errores Windows `61102`. La fase posterior [SOC-OPS-004](SOC-OPS-004.md) sí registró tiempos de dos triages, pero no sustituye las mediciones ausentes de esta sesión.
 
-## Operational metrics
-
-- Observed alert hits: 192
-- Rule families visible in the reviewed screenshot: 5
-- Detailed alert investigations documented in this session: 1
-- Confirmed incidents among investigated alerts: 0
-- Effective monitoring duration: Not available
-- Mean time to triage: Not available
-- Mean time to respond: Not available
-
-## Handover
-
-- Review rule 61102 if additional Windows errors are observed.
-- Group recurring 60608 and 61104 alerts before individual triage.
-- Preserve rule 92058 as a provisional assessment.
-- Do not suppress rules or modify detection logic without testing.
-- Continue monitoring in a new, explicitly timed session.
+**Evidencia de tiempo:** [inicio](SOC-OPS-003-start.txt), [fin](SOC-OPS-003-end.txt).

@@ -1,8 +1,8 @@
 # CASE-001 — SecEdit execution observed during security assessment
 
 ## Status and classification
-- **Status:** Initial triage documented; administrative closure pending analyst confirmation.
-- **Verdict:** Likely benign administrative/security-assessment activity; **not confirmed**.
+- **Status:** Administratively closed on 2026-10-10 by explicit analyst authorization; exact closure clock time not recorded.
+- **Verdict:** Likely Benign — Closed with Residual Uncertainty. This is an administrative determination, not a confirmed false positive.
 - **Confidence:** Moderate (contextual and temporal correlation, no confirmed process ancestry).
 - **SOC priority:** Not formally assigned.
 - **Disposition:** No containment or remediation executed.
@@ -41,11 +41,11 @@ Was this PowerShell-initiated security-policy export a legitimate Wazuh Security
 
 **MITRE ATT&CK:** The originating Wazuh rule provides `T1059.001` / Execution. This is detection metadata, not evidence of malicious PowerShell use.
 
-**Provisional conclusion:** Likely benign security-assessment activity; no compromise established. Do not assert a confirmed false positive or close as a validated benign positive until the analyst accepts the residual uncertainty and records the closure decision.
+**Final administrative conclusion (analyst decision 2026-10-10):** Likely Benign — Closed with Residual Uncertainty. Wazuh SCA initiation is plausible but unproven; no compromise was established by the investigated evidence. Residual uncertainty is expressly accepted for administrative closure. This is not a confirmed false positive.
 
 ## Actions and next steps
 - No containment action taken or recommended on the available evidence.
-- Record the analyst's final determination and actual closure timestamp when the case is formally closed.
+- Analyst explicitly authorized closure on 2026-10-10; exact clock time of decision/closure was not captured and must not be invented.
 - Optional detection-tuning candidate: review whether this agent/SCA context creates recurring rule 92066 noise; do not suppress the rule without a representative sample and negative tests.
 - Potential automation: normalize process ancestry, SCA context and evidence references for triage, after manual baseline measurements.
 
@@ -55,3 +55,12 @@ Was this PowerShell-initiated security-policy export a legitimate Wazuh Security
 
 ## Measurement integrity
 Triage start time, determination time, closure time, and measured triage duration were not recorded reliably. They are **not available**; do not infer them from message times or event timestamps.
+
+## Closure authorization and residual uncertainty
+- **Decision date:** 2026-10-10 (explicit analyst authorization).
+- **Final administrative status:** Closed — Likely Benign with Residual Uncertainty.
+- **Approval basis:** Correlated SCA context and SYSTEM/agent working directory, without definitive ancestry attribution.
+- **Residual gaps:** process ancestry, SysWOW64/system32 mismatch, executable signature/hash and raw-alert publication readiness.
+- **Containment:** None performed.
+- **Timing caveat:** No validated individual triage duration or exact closure UTC timestamp exists.
+- **Reopening criterion:** New contradictory evidence or reliable provenance data.

@@ -1,0 +1,3 @@
+﻿"case_id","source","agent","rule_id","first_event_utc","triage_start_utc","decision_utc","closure_utc","priority","assessment","administrative_status","confirmed_incident","triage_seconds","notes"
+"CASE-001","Wazuh","WIN11-EP-01","92066","2026-10-09T15:35:04.166Z","","","","not_recorded","likely_benign_residual_uncertainty","closed_by_analyst_authorization_2026-10-10","not_established","","Closure date from explicit analyst authorization; execution timestamp not recorded; no containment"
+"CASE-002","Wazuh","WIN11-EP-01","92058","2026-10-10T11:46:53.224Z","","","","high","likely_benign_unconfirmed","open","not_established","","Operation provenance and alert/event time ordering need review; no containment"

@@ -1,0 +1,3 @@
+observation_id,window_type,window_label,wazuh_hits,distinct_incidents,fully_triaged_alerts,measured_effective_minutes,notes
+SOC-OPS-002,relative_24h,2026-10-08_to_2026-10-09,101,,,,"Retrospective review; exact clock bounds not captured"
+SOC-OPS-003,relative_24h,displayed_2026-10-09_14:44_to_2026-10-10_14:44,192,,,,"Interrupted session; 120.34 minutes elapsed is not effective analyst work"

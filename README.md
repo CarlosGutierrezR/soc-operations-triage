@@ -71,3 +71,17 @@ Las capturas y los eventos originales pueden contener información sensible. El 
 **Alcance demostrado:** investigación de alertas, clasificación, handover, tiempos transcurridos de dos triages, comparación limitada de recurrencia y recuperación FIM controlada.
 
 **Abierto o no demostrado:** procedencia del CASE-002 y de TRIAGE-001; causa raíz del fallo de Active Directory de TRIAGE-002 (transferido a SOC CORE); deduplicación de toda la cola; medición de trabajo efectivo, MTTA/MTTD/MTTR y tasa de falsos positivos; correlación directa red–endpoint; contención de una amenaza real. Véase [limitaciones](docs/limitations.md).
+
+## 🌐 English summary
+
+**SOC operations practice** in my own authorized SOC lab (Wazuh, Sysmon, Windows 11 and Ubuntu endpoints): alert triage, case handling, shift handover and a controlled recovery exercise.
+
+- **Cases:** CASE-001 administratively closed as likely benign with accepted residual uncertainty; CASE-002 still open (exact provenance of `sdbinst.exe` not verified).
+- **Shifts:** two retrospective 24 h queue reviews (101 and 192 hits from different rolling windows, not added together) and two timed triages (124.62 s and 526.03 s elapsed).
+- **Tuning:** comparison of recurring rule `92058` alerts — two distinct executions, no duplicates between those two events; the full queue was not measured.
+- **IR-001:** authorized modification of a test file detected by Wazuh FIM (rules `554`, `550`) and restored to its original SHA-256. It was not a real intrusion.
+- **Not demonstrated:** MTTA/MTTD/MTTR, false-positive rate, network–endpoint correlation, or containment of a real threat. See [limitations](docs/limitations.md).
+
+## Licencia
+
+[MIT](LICENSE)
